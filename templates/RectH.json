@@ -1,0 +1,31 @@
+{
+  "height": 250,
+  "width": 486.11111111,
+  "qrcode":{
+    "x": 50,
+    "y": 80,
+    "width": 150,
+    "height": 150
+  },
+  "text": {
+    "status": true,
+    "x": 50,
+    "y": 70
+  },
+  "elements": [
+     {
+      "path": "./FJPP_logo.png",
+      "x": 306.11111111 ,
+      "y": 115,
+      "width": 150,
+      "height": 100
+    },
+    {
+      "path": "./000.png",
+      "x": 271.11111111,
+      "y": 70,
+      "width": 250,
+      "height": 250
+    }
+  ]
+}

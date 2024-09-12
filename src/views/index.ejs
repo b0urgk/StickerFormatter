@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Sticker Formatter</title>
+</head>
+<style>
+    *{
+        font-family: Arial;
+        margin: 0;
+        padding: 0;
+    }
+
+    #input-fields__section{
+        text-align:center;
+        margin-left:auto;
+        margin-right:auto;
+        width: fit-content;
+    }
+    #input_fields__form > {
+        display: inline-block;
+    }
+    #live-output__section{
+        text-align:center;
+        margin-left:auto;
+        margin-right:auto;
+        width: fit-content;
+    }
+    button{
+        margin-top: 2em;
+        appearance: none;
+        outline: none;
+        border: .2em solid #13339c;
+        background-color: rgba(19, 51, 156, 0.2);
+        border-radius: 10px;
+        font-size: 1em;
+        padding: .8em;
+        color: #13339c;
+        transition: background-color .2s ease;
+    }
+    button:hover{
+        background-color: rgba(19, 51, 156, 0.59);
+        cursor: pointer;
+    }
+    input[type=url], select{
+        appearance: none;
+        border: none;
+        outline: none;
+        border-bottom: .2em solid #13339c;
+        background: rgba(19, 51, 156, 0.2);
+        border-radius: .2em .2em 0 0;
+        padding: .4em;
+        color: #13339c;
+        margin-right: 1.5em;
+    }
+    hr{
+        width: 80%;
+        opacity: .8;
+        margin: 3em auto 3em auto;
+    }
+    #imageCanvas{
+        border: dimgrey 2px solid;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    ;
+    }
+    footer{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding-top: 2.5em;
+        color: #353030;
+    }
+    header{
+        padding: 1em 0 1em 0;
+        border: 4px solid #13339c;
+        background: rgba(19, 51, 156, 0.2);
+        width: 40%;
+        text-align:center;
+        margin: 1em auto 2em;
+    }
+    header > ul > li {
+        display: inline-block;
+        padding: 0 1em 0 1em ;
+    }
+    header > ul{
+        text-align: center;
+    }
+</style>
+<script type="application/javascript">
+    let imageUrl;
+
+    function exportToPrintable(){
+        if (imageUrl == null) return;
+
+    }
+
+    function download(){
+        if (imageUrl == null) return;
+        const link = document.createElement('a');
+        link.href = imageUrl;
+        link.download = 'downloaded-image'; // Filename for the downloaded image
+        document.body.appendChild(link);
+        link.click();
+
+        // Cleanup
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    }
+    function updateSubDisplay(){
+        const reportURL = document.getElementById('report_url').value;
+
+        if(reportURL == "" || !reportURL.startsWith('https://app.wowflow.com')){
+            return;
+        }
+        const shape = document.getElementById('banner-shape__selector').value;
+
+        fetch('http://192.168.178.86:4000/api/genBanner', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ url: reportURL, shape: shape }),
+        })
+            .then(response => response.blob()) // Get the image as a Blob
+            .then(blob => {
+                const canvas = document.getElementById('imageCanvas');
+                const ctx = canvas.getContext('2d');
+                imageUrl = URL.createObjectURL(blob);
+                const img = new Image();
+
+
+                img.onload = () => {
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(img, 0, 0);
+                };
+
+                img.src = imageUrl;
+            })
+            .catch(error => {
+                console.error('Error updating image:', error);
+            });
+    }
+</script>
+<body>
+<header>
+    <ul>
+        <li> test </li>
+        <li> test </li>
+        <li> test </li>
+
+    </ul>
+</header>
+<main>
+    <div id="input-fields__section">
+        <form id="input_fields__form">
+            <input placeholder="Report URL" class="input_field" type="url" id="report_url" name="report_url" onkeyup="updateSubDisplay()">
+            <label> > </label>
+            <select name="shape" id="banner-shape__selector" onchange="updateSubDisplay()">
+                <option value="RectH">Rectangular Horizontal</option>
+                <option value="RectV">Rectangular Vertical</option>
+                <option value="square">Square</option>
+            </select>
+
+        </form>
+    </div>
+    <hr>
+    <div id="live-output__section">
+        <canvas id="imageCanvas" width="486" height="250"></canvas>
+        <br>
+        <button onclick="download()"> Download </button>
+        <button onclick="exportToPrintable()"> Export printable file </button>
+    </div>
+</main>
+<hr>
+<footer>
+    &copy 2024 Bourg Kim
+</footer>
+</body>
+</html>
